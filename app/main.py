@@ -6,7 +6,7 @@ import os
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api.routes import chat
+from app.api.routes import chat, admin
 
 
 @asynccontextmanager
@@ -37,6 +37,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 
 @app.get("/")
@@ -47,6 +48,14 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "openai_configured": bool(settings.OPENAI_API_KEY)}
+
+@app.get("/api/health")
+async def api_health_check():
+    return {
+        "status": "healthy", 
+        "openai_status": "connected" if settings.OPENAI_API_KEY else "not configured",
+        "timestamp": "2024-07-22T00:00:00Z"
+    }
 
 
 if __name__ == "__main__":
